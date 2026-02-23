@@ -1,0 +1,23 @@
+{
+  "name": "tweettool",
+  "version": "1.0.0",
+  "description": "Turn your ideas into viral tweets instantly.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tigha66/tweetforge.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tigha66/tweetforge/issues"
+  },
+  "homepage": "https://github.com/Tigha66/tweetforge#readme",
+  "dependencies": {
+    "stripe": "^20.3.1"
+  }
+}
