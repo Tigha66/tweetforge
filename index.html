@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TweetForge - AI Tweet Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-text {
+      background: linear-gradient(135deg, #fff 0%, #1d9bf0 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .glow {
+      box-shadow: 0 0 40px rgba(29, 155, 240, 0.3);
+    }
+    .tweet-card {
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body class="bg-black text-white min-h-screen">
+  <!-- Header -->
+  <nav class="flex items-center justify-between px-6 py-4 max-w-4xl mx-auto">
+    <div class="flex items-center gap-2">
+      <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="#fff"/>
+      </svg>
+      <span class="text-xl font-bold">TweetForge</span>
+    </div>
+    <a href="https://buy.stripe.com/test" class="bg-[#1d9bf0] hover:bg-[#1a8cd8] px-4 py-2 rounded-full font-semibold text-sm transition">
+      Go Pro - $3
+    </a>
+  </nav>
+
+  <!-- Main -->
+  <main class="max-w-2xl mx-auto px-6 py-12">
+    <div class="text-center mb-10">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">
+        Turn your ideas into <span class="gradient-text">viral tweets</span>
+      </h1>
+      <p class="text-gray-400 text-lg">AI-powered tweet generation in seconds. No signup required.</p>
+    </div>
+
+    <!-- Generator Card -->
+    <div class="tweet-card rounded-2xl p-6 glow">
+      <div class="flex gap-2 mb-4">
+        <button onclick="setMode('tweet')" id="btn-tweet" class="flex-1 py-2 px-4 rounded-lg bg-[#1d9bf0] text-white font-medium text-sm">Tweet</button>
+        <button onclick="setMode('thread')" id="btn-thread" class="flex-1 py-2 px-4 rounded-lg bg-white/10 text-gray-400 font-medium text-sm hover:bg-white/20 transition">Thread</button>
+        <button onclick="setMode('bio')" id="btn-bio" class="flex-1 py-2 px-4 rounded-lg bg-white/10 text-gray-400 font-medium text-sm hover:bg-white/20 transition">Bio</button>
+      </div>
+
+      <textarea 
+        id="input" 
+        placeholder="What's your topic? e.g., 'AI tools for developers' or 'motivation for entrepreneurs'"
+        class="w-full bg-black/50 border border-white/20 rounded-xl p-4 text-white placeholder-gray-500 focus:border-[#1d9bf0] focus:outline-none transition resize-none"
+        rows="3"
+      ></textarea>
+
+      <div class="flex items-center justify-between mt-4">
+        <select id="tone" class="bg-black/50 border border-white/20 rounded-lg px-4 py-2 text-sm text-gray-300 focus:outline-none">
+          <option value="casual">Casual & Friendly</option>
+          <option value="professional">Professional</option>
+          <option value="funny">Funny & Witty</option>
+          <option value="viral">Viral & Hook-heavy</option>
+          <option value="thoughtful">Thought Leader</option>
+        </select>
+        <button onclick="generate()" id="generate-btn" class="bg-[#1d9bf0] hover:bg-[#1a8cd8] px-6 py-2 rounded-full font-semibold transition flex items-center gap-2">
+          <span>Generate</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="hidden text-center py-8">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-[#1d9bf0]"></div>
+      <p class="text-gray-400 mt-2">Crafting your tweet...</p>
+    </div>
+
+    <!-- Results -->
+    <div id="results" class="mt-6 space-y-4"></div>
+
+    <!-- Footer -->
+    <footer class="mt-16 text-center text-gray-500 text-sm">
+      <p>Built for creators who want to be heard.</p>
+      <p class="mt-2">© 2026 TweetForge</p>
+    </footer>
+  </main>
+
+  <script>
+    let mode = 'tweet';
+    const tones = {
+      casual: 'Write in a casual, friendly tone like a Twitter founder casually sharing insights.',
+      professional: 'Write in a professional, expert tone with clear value.',
+      funny: 'Write with humor, wit, and clever observations. Make it entertaining.',
+      viral: 'Use strong hooks, controversy, or powerful statements. Optimized for retweets.',
+      thoughtful: 'Write with depth, nuance, and philosophical insights.'
+    };
+
+    function setMode(m) {
+      mode = m;
+      document.querySelectorAll('[id^="btn-"]').forEach(btn => {
+        btn.classList.remove('bg-[#1d9bf0]', 'text-white');
+        btn.classList.add('bg-white/10', 'text-gray-400');
+      });
+      const activeBtn = document.getElementById('btn-' + m);
+      activeBtn.classList.remove('bg-white/10', 'text-gray-400');
+      activeBtn.classList.add('bg-[#1d9bf0]', 'text-white');
+      
+      const placeholder = m === 'tweet' ? "What's your topic? e.g., 'AI tools for developers'" 
+                  : m === 'thread' ? "What topic for a thread? e.g., '10 lessons from building a startup'"
+                  : "Who are you? e.g., 'Founder building AI tools'";
+      document.getElementById('input').placeholder = placeholder;
+    }
+
+    async function generate() {
+      const input = document.getElementById('input').value.trim();
+      if (!input) return;
+
+      const btn = document.getElementById('generate-btn');
+      const loading = document.getElementById('loading');
+      const results = document.getElementById('results');
+      
+      btn.disabled = true;
+      loading.classList.remove('hidden');
+      results.innerHTML = '';
+
+      // Local generation with smart templates (no API key needed for demo)
+      const tweets = generateLocal(input, mode, document.getElementById('tone').value);
+      
+      loading.classList.add('hidden');
+      btn.disabled = false;
+
+      tweets.forEach((tweet, i) => {
+        const div = document.createElement('div');
+        div.className = 'tweet-card rounded-xl p-4 cursor-pointer hover:border-[#1d9bf0] transition';
+        div.innerHTML = `
+          <div class="flex justify-between items-start">
+            <p class="text-white whitespace-pre-wrap">${tweet}</p>
+            <button onclick="copyTweet(this, \`${tweet.replace(/`/g, '\\`')}\`)" class="text-gray-400 hover:text-[#1d9bf0] ml-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </button>
+          </div>
+          <p class="text-xs text-gray-500 mt-2">${i + 1} of ${tweets.length} • Click to copy</p>
+        `;
+        div.onclick = () => copyTweet(div.querySelector('button'), tweet);
+        results.appendChild(div);
+      });
+    }
+
+    function generateLocal(topic, mode, tone) {
+      const toneInstruction = tones[tone];
+      const templates = {
+        tweet: [
+          `${topic} is underrated.\n\nMost people skip past it. But that's where the opportunity lives.\n\n🧵 Thread incoming.`,
+          `Hot take: ${topic}\n\nMost people get it wrong. Here's what actually works:\n\n1. Start small\n2. Iterate fast\n3. Ignore the noise\n\nAgree or disagree?`,
+          `If you work with ${topic}, stop doing this:\n\n❌ Focusing on everything\n❌ Waiting for perfection\n✅ Starting now\n\nThe best time to start was yesterday. The second best is now.`,
+          `I used to overthink ${topic}.\n\nThen I realized: action > perfection.\n\nNow I just ship.\n\nResult: 10x progress.\n\nWhat's your excuse?`
+        ],
+        thread: [
+          `🧵 ${topic}: What nobody tells you\n\n1/ Most people fail because they think too much.\n\n2/ The secret isn't complexity—it's consistency.\n\n3/ Do one thing every day. That's it.\n\n4/ Results compound. Small actions, massive impact.\n\n5/ Start now. Don't wait.\n\nRetweet if this helps.`,
+          `🧵 10 thoughts on ${topic}:\n\n1/ It's not about the tools.\n\n2/ It's about the mindset.\n\n3/ Most quit too early.\n\n4/ The winners stay.\n\n5/ Focus > everything.\n\n(continued...)`
+        ],
+        bio: [
+          `Building ${topic} | Making the complex simple | Tweets about tech, growth, and what I'm learning`,
+          `${topic} | Founder | I make things happen | DMs open`,
+          `Obsessed with ${topic} | Building in public | Sharing what I learn | Let's connect`
+        ]
+      };
+      return templates[mode] || templates.tweet;
+    }
+
+    function copyTweet(btn, text) {
+      navigator.clipboard.writeText(text);
+      const original = btn.innerHTML;
+      btn.innerHTML = '✅';
+      setTimeout(() => btn.innerHTML = original, 1500);
+    }
+  </script>
+</body>
+</html>
